@@ -1,0 +1,565 @@
+<div className="prose">
+
+# Typescript
+
+## 目录
+
+*   [Typescript](#typescript)
+    *   [目录](#目录)
+        *   [Ts 简介](#ts-简介)
+        *   [Ts 官方在线开发云环境](#ts-官方在线开发云环境)
+    *   [数据类型](#数据类型)
+        *   [八种内置基础数据类型](#八种内置基础数据类型)
+            *   [Array](#array)
+            *   [函数](#函数)
+            *   [Turple](#turple)
+            *   [void](#void)
+            *   [never](#never)
+            *   [any](#any)
+            *   [unkonow](#unkonow)
+            *   [Number、String、Boolean、Symbol](#numberstringbooleansymbol)
+            *   [object、Object 和 {}](#objectobject-和-)
+    *   [类型推断](#类型推断)
+    *   [类型断言](#类型断言)
+    *   [字面量类型](#字面量类型)
+        *   [字符串字面量类型](#字符串字面量类型)
+    *   [类型拓宽](#类型拓宽)
+    *   [类型缩小](#类型缩小)
+    *   [联合类型](#联合类型)
+    *   [类型别名](#类型别名)
+    *   [交叉类型](#交叉类型)
+    *   [接口](#接口)
+    *   [接口与类型别名区别](#接口与类型别名区别)
+    *   [泛型](#泛型)
+        *   [常见泛型变量代表的意思](#常见泛型变量代表的意思)
+        *   [类型约束](#类型约束)
+
+### Ts 简介
+
+> Ts 是 Js 的超集。使用 Ts 可以让代码更健壮，提高代码可阅读性，有助于快速掌握其他强类型编程语言，支持诸如 C,C++,Java,Go 等后端语言中的特性 (枚举、泛型、类型转换、命名空间、声明文件、类、接口等)
+
+### [Ts 官方在线开发云环境](https://www.typescriptlang.org/zh/play)
+
+## 数据类型
+
+### 八种内置基础数据类型
+
+*   默认情况下 `null` 和 `undefined` 是所有类型的子类型。 就是说你可以把 `null` 和 `undefined` 赋值给其他类型。
+*   虽然 `number` 和 `bigint` 都表示数字，但是这两个类型不兼容。
+*   七种原始类型 + `objcet`， `object`代表所有非原始类型
+
+```typescript
+let str: string = "jimmy";
+let num: number = 24;
+let bool: boolean = false;
+let u: undefined = undefined;
+let n: null = null;
+let obj: object = { x: 1 };
+let big: bigint = 100n;
+let sym: symbol = Symbol("me");
+
+obj = null;
+obj = undefined;
+```
+
+#### Array
+
+```typescript
+// 两种基础定义方式
+let arr:string[] = ["1","2"];
+let arr2:Array<string> = ["1","2"]；
+// 联合类型定义方式
+let arr:(number | string)[];
+// 定义指定对象成员的数组
+interface Arrobj{
+    name:string,
+    age:number
+}
+let arr3:Arrobj[]=[{name:'jimmy',age:22}]
+```
+
+#### 函数
+
+```typescript
+// 函数声明
+function sum(x: number, y: number): number {
+  return x + y;
+}
+
+// 函数表达式
+let mySum: (x: number, y: number) => number = function (
+  x: number,
+  y: number
+): number {
+  return x + y;
+};
+
+// 接口定义函数类型
+interface SearchFunc {
+  (source: string, subString: string): boolean;
+}
+
+//可选参数和参数默认值，可选参数后面不允许再出现必需参数
+function buildName(firstName: string = "jj", lastName?: string) {
+  if (lastName) {
+    return firstName + " " + lastName;
+  } else {
+    return firstName;
+  }
+}
+let tomcat = buildName("Tom", "Cat");
+let tom = buildName("Tom");
+
+// 函数重载
+type Combinable = string | number;
+function add(a: Combinable, b: Combinable) {
+  if (typeof a === "string" || typeof b === "string") {
+    return a.toString() + b.toString();
+  }
+  return a + b;
+}
+const result = add("Semlinker", " Kakuqo");
+result.split(" ");
+```
+
+*   函数重载或方法重载是使用相同名称和不同参数数量或类型创建多个方法的一种能力。
+
+#### Turple
+
+*   元组最重要的特性是可以限制数组元素的个数和类型
+*   元组类型只能表示一个已知元素数量和类型的数组
+*   如果一个数组中可能有多种类型，数量和类型都不确定，那就直接`any[]`
+
+```typescript
+let x: [string, number];
+// 类型必须匹配且个数必须为2
+x = ["hello", 10]; // OK
+x = ["hello", 10, 10]; // Error
+x = [10, "hello"]; // Error
+// 可选元素
+let optionalTuple: [string, boolean?];
+// 元祖支持解构赋值
+let employee: [number, string] = [1, "Semlinker"];
+let [id, username] = employee;
+```
+
+#### void
+
+*   `void`表示没有任何类型，和其他类型是平等关系，不能直接赋值
+*   声明一个`void`类型的变量没有什么大用，我们一般也只有在函数没有返回值时去声明。
+
+#### never
+
+*   `never`类型表示的是那些永不存在的值的类型。
+
+```typescript
+// 异常
+function err(msg: string): never {
+  // OK
+  throw new Error(msg);
+}
+
+// 死循环
+function loopForever(): never {
+  // OK
+  while (true) {}
+}
+```
+
+#### any
+
+*   任何类型都可以被归为 `any` 类型
+*   变量如果在声明的时候，未指定其类型，那么它会被识别为任意值类型 `any`
+
+#### unkonow
+
+*   `unknown`与`any`一样，所有类型都可以分配给`unknown`
+*   `unknown`与`any`的最大区别是： 任何类型的值可以赋值给`any`，同时`any`类型的值也可以赋值给任何类型。`unknown` 任何类型的值都可以赋值给它，但它只能赋值给`unknown`和`any`
+
+```typescript
+let notSure: unknown = 4;
+let uncertain: any = notSure; // OK
+
+let notSure: any = 4;
+let uncertain: unknown = notSure; // OK
+
+let notSure: unknown = 4;
+let uncertain: number = notSure; // Error
+
+// 如果不缩小类型，就无法对unknown类型执行任何操作，这种机制起到了很强的预防性，安全性
+// 必须使用缩小类型，如typeod，类型断言来缩小范围
+function getDogName() {
+  let x: unknown;
+  return x;
+}
+const dogName = getDogName();
+// 直接使用
+const upName = dogName.toLowerCase(); // Error
+// typeof
+if (typeof dogName === "string") {
+  const upName = dogName.toLowerCase(); // OK
+}
+// 类型断言
+const upName = (dogName as string).toLowerCase(); // OK
+```
+
+#### Number、String、Boolean、Symbol
+
+*   我们来回顾一下初学 TypeScript 时，很容易和原始类型 number、string、boolean、symbol 混淆的首字母大写的 Number、String、Boolean、Symbol 类型，后者是相应原始类型的包装对象，姑且把它们称之为对象类型。
+*   不要使用对象类型来注解值的类型，因为这没有任何意义。
+
+```typescript
+let num: number;
+let Num: Number;
+Num = num; // ok
+num = Num; // ts(2322)报错
+```
+
+#### object、Object 和 {}
+
+*   `object` 代表的是所有非原始类型，也就是说我们不能把 `number、string、boolean、symbol`等 原始类型赋值给 `object`。在严格模式下，`null` 和 `undefined` 类型也不能赋给 `object`。
+*   `Object` 代表所有拥有 `toString、hasOwnProperty` 方法的类型，所以所有原始类型、非原始类型都可以赋给 `Object`。
+*   `Object` 不仅是 `object` 的父类型，同时也是 `object` 的子类型。
+*   尽管官方文档说可以使用 `object` 代替 `Object`，但是我们仍要明白 `Object` 并不完全等价于 `object`。
+*   `{}`空对象类型和大 `Object` 一样，也是表示原始类型和非原始类型的集合。
+*   `{}、Object` 是比 `object` 更宽泛的类型`（least specific），{} 和 Object` 可以互相代替，用来表示原始类型（null、undefined 除外）和非原始类型；而 `object` 则表示非原始类型。
+
+```typescript
+let lowerCaseObject: object;
+lowerCaseObject = 1; // ts(2322)
+lowerCaseObject = "a"; // ts(2322)
+lowerCaseObject = true; // ts(2322)
+lowerCaseObject = null; // ts(2322)
+lowerCaseObject = undefined; // ts(2322)
+lowerCaseObject = {}; // ok
+
+let upperCaseObject: Object;
+upperCaseObject = 1; // ok
+upperCaseObject = "a"; // ok
+upperCaseObject = true; // ok
+upperCaseObject = null; // ts(2322)
+upperCaseObject = undefined; // ts(2322)
+upperCaseObject = {}; // ok
+```
+
+## 类型推断
+
+*   把 TypeScript 这种基于赋值表达式推断类型的能力称之为类型推断。
+*   尽可能利用类型推断，让 TypeScript 自动确定变量的类型。
+
+```typescript
+{
+  let str = "this is string"; // 等价 let str: string = 'this is string'; 下面类似
+  let num = 1; // 等价
+  let bool = true; // 等价
+}
+{
+  const str = "this is string"; // 不等价
+  const num = 1; // 不等价
+  const bool = true; // 不等价
+}
+```
+
+## 类型断言
+
+*   我们可以使用一种笃定的方式——类型断言（类似仅作用在类型层面的强制类型转换）告诉 `TypeScript` 按照我们的方式做类型检查。
+*   尖括号格式会与`react`中`JSX`产生语法冲突，因此我们更推荐使用 `as` 语法。
+*   非空断言，x! 将从 x 值域中排除 null 和 undefined
+*   允许在实例属性和变量声明后面放置一个 ! 号，从而告诉 TypeScript 该属性会被明确地赋值。
+
+```typescript
+const arrayNumber: number[] = [1, 2, 3, 4];
+const greaterThan2: number = arrayNumber.find((num) => num > 2); // 提示 ts(2322)
+const greaterThan2: number = arrayNumber.find((num) => num > 2) as number;
+
+// 尖括号 语法
+let someValue: any = "this is a string";
+let strLength: number = (<string>someValue).length;
+
+// as 语法
+let someValue: any = "this is a string";
+let strLength: number = (someValue as string).length;
+
+// 非空断言
+let mayNullOrUndefinedOrString: null | undefined | string;
+mayNullOrUndefinedOrString!.toString(); // ok
+mayNullOrUndefinedOrString.toString(); // ts(2531)
+type NumGenerator = () => number;
+function myFunc(numGenerator: NumGenerator | undefined) {
+  // Object is possibly 'undefined'.(2532)
+  // Cannot invoke an object which is possibly 'undefined'.(2722)
+  const num1 = numGenerator(); // Error
+  const num2 = numGenerator!(); //OK
+}
+
+let x!: number;
+initialize();
+console.log(2 * x); // Ok
+
+function initialize() {
+  x = 10;
+}
+```
+
+## 字面量类型
+
+### 字符串字面量类型
+
+```typescript
+type Direction = "up" | "down";
+
+function move(dir: Direction) {
+  // ...
+}
+move("up"); // ok
+move("right"); // ts(2345) Argument of type '"right"' is not assignable to parameter of type 'Direction'
+```
+
+## 类型拓宽
+
+*   TypeScript 提供了一些控制拓宽过程的方法。其中一种方法是使用 const。如果用 const 而不是 let 声明一个变量，那么它的类型会更窄。
+
+```typescript
+{
+  let x = null; // 类型拓宽成 any
+  let y = undefined; // 类型拓宽成 any
+
+  /** -----分界线------- */
+  const z = null; // 类型是 null
+
+  /** -----分界线------- */
+  let anyFun = (param = null) => param; // 形参类型是 null
+  let z2 = z; // 类型是 null
+  let x2 = x; // 类型是 null
+  let y2 = y; // 类型是 undefined
+}
+```
+
+## 类型缩小
+
+*   使用类型守卫
+
+```typescript
+{
+  let func = (anything: any) => {
+    if (typeof anything === "string") {
+      return anything; // 类型是 string
+    } else if (typeof anything === "number") {
+      return anything; // 类型是 number
+    }
+    return null;
+  };
+}
+
+interface UploadEvent {
+  type: "upload";
+  filename: string;
+  contents: string;
+}
+
+interface DownloadEvent {
+  type: "download";
+  filename: string;
+}
+
+type AppEvent = UploadEvent | DownloadEvent;
+
+function handleEvent(e: AppEvent) {
+  switch (e.type) {
+    case "download":
+      e; // Type is DownloadEvent
+      break;
+    case "upload":
+      e; // Type is UploadEvent
+      break;
+  }
+}
+```
+
+## 联合类型
+
+*   联合类型表示取值可以为多种类型中的一种，使用 | 分隔每个类型。
+*   联合类型通常与 null 或 undefined 一起使用
+
+```typescript
+let myFavoriteNumber: string | number;
+myFavoriteNumber = "seven"; // OK
+myFavoriteNumber = 7; // OK
+const sayHello = (name: string | undefined) => {
+  /* ... */
+};
+let num: 1 | 2 = 1;
+type EventNames = "click" | "scroll" | "mousemove";
+```
+
+## 类型别名
+
+*   类型别名用来给一个类型起个新名字。
+*   类型别名常用于联合类型。
+
+```typescript
+type Message = string | string[];
+let greet = (message: Message) => {
+  // ...
+};
+```
+
+## 交叉类型
+
+*   交叉类型真正的用武之地就是将多个接口类型合并成一个类型，从而实现等同接口继承的效果，也就是所谓的合并接口类型
+
+```typescript
+type IntersectionType = { id: number; name: string } & { age: number };
+const mixed: IntersectionType = {
+  id: 1,
+  name: "name",
+  age: 18,
+};
+```
+
+## 接口
+
+*   用接口（Interfaces）来定义对象的类型
+*   接口除了可用于\[对类的一部分行为进行抽象]以外，也常用于对「对象的形状（Shape）」进行描述。
+*   接口一般首字母大写。
+*   谓的鸭式辨型法就是像鸭子一样走路并且嘎嘎叫的就叫鸭子，即具有鸭子特征的认为它就是鸭子，也就是通过制定规则来判定对象是否实现这个接口。
+
+```typescript
+interface Person {
+    name: string;
+    age?: number; // 可选属性
+    [propName: string]: any; // 任意属性
+    // or
+    [propName: string]: string | number | undefined;
+}
+
+let tom: Person = {
+    name: 'Tom',
+    gender: 'male'
+};
+
+interface LabeledValue {
+  label: string;
+}
+function printLabel(labeledObj: LabeledValue) {
+  console.log(labeledObj.label);
+}
+let myObj = { size: 10, label: "Size 10 Object" };
+printLabel(myObj); // OK
+printLabel({ size: 10, label: "Size 10 Object" }); // Error
+// 在参数里写对象就相当于是直接给labeledObj赋值，这个对象有严格的类型定义，所以不能多参或少参。而当你在外面将该对象用另一个变量myObj接收，myObj不会经过额外属性检查，但会根据类型推论为let myObj: { size: number; label: string } = { size: 10, label: "Size 10 Object" };，然后将这个myObj再赋值给labeledObj，此时根据类型的兼容性，两种类型对象，参照鸭式辨型法，因为都具有label属性，所以被认定为两个相同，故而可以用此法来绕开多余的类型检查。
+
+interface Props { 
+  name: string; 
+  age: number; 
+  money?: number;
+}
+
+let p: Props = {
+  name: "兔神",
+  age: 25,
+  money: -100000,
+  girl: false
+} as Props; // OK
+// 类型断言也可以绕开类型检查
+```
+
+## 接口与类型别名区别
+
+*   实际上，在大多数的情况下使用接口类型和类型别名的效果等价，但是在某些特定的场景下这两者还是存在很大区别
+*   TypeScript 的核心原则之一是对值所具有的结构进行类型检查。 而接口的作用就是为这些类型命名和为你的代码或第三方代码定义数据模型。
+*   与接口不同，类型别名还可以用于其他类型，如基本类型（原始值）、联合类型、元组。
+*   接口可以定义多次,类型别名不可以。
+*   接口的扩展就是继承，通过 extends 来实现。类型别名的扩展就是交叉类型，通过 & 来实现。
+
+```typescript
+// 两者都可以用来描述对象或函数的类型，但是语法不同。
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface SetPoint {
+  (x: number, y: number): void;
+}
+
+type Point = {
+  x: number;
+  y: number;
+};
+
+type SetPoint = (x: number, y: number) => void;
+
+interface Point { x: number; }
+interface Point { y: number; }
+const point: Point = { x: 1, y: 2 };
+
+// 扩展
+interface PointX {
+    x: number
+}
+
+interface Point extends PointX {
+    y: number
+}
+
+type PointX = {
+    x: number
+}
+
+type Point = PointX & {
+    y: number
+}
+type PointX = {
+    x: number
+}
+interface Point extends PointX {
+    y: number
+}
+interface PointX {
+    x: number
+}
+type Point = PointX & {
+    y: number
+}
+
+```
+
+## 泛型
+
+### 常见泛型变量代表的意思
+
+*   T（Type）：定义泛型时通常用作第一个类型变量名称；
+*   K（Key）：表示对象中的键类型；
+*   V（Value）：表示对象中的值类型；
+*   E（Element）：表示元素类型；
+
+```typescript
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+function identity <T, U>(value: T, message: U) : T {
+  console.log(message);
+  return value;
+}
+console.log(identity<Number, string>(68, "Semlinker"));
+// 一种更常见的做法是使编译器自动选择这些类型，从而使代码更简洁。
+console.log(identity(68, "Semlinker"));
+
+```
+
+### 类型约束
+
+```typescript
+interface Sizeable {
+  size: number;
+}
+function trace<T extends Sizeable>(arg: T): T {
+  console.log(arg.size);
+  return arg;
+}
+
+```
+
+</div>
